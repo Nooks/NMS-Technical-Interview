@@ -49,8 +49,7 @@ public class Main {
     }
 
     /**
-     * This method checks to the ArrayList and when it finds a OID that starts with pref or oid it
-     * returns true, if not return false.
+     * This method uses a custom binary search to check if the OID is true or false
      *
      * @param oid this is the passed variable that's used to check if it matches any of the OIDs
      *            in the ArrayList
@@ -60,8 +59,16 @@ public class Main {
         return Collections.binarySearch(OIDPrefixes, oid, new CustomComp()) >= -1;
     }
 
+    /**
+     * Custom comparator class
+     */
     private static class CustomComp implements Comparator<String> {
-
+        /**
+         * Custom compare method that compares the OID to see if its true
+         * @param o1
+         * @param o2
+         * @return
+         */
         @Override
         public int compare(String o1, String o2) {
             if (o1.startsWith(o2) || o2.startsWith(o1)) {
