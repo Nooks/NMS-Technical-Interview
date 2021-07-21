@@ -5,8 +5,6 @@
  */
 
 import org.yaml.snakeyaml.Yaml;
-
-import java.io.InputStream;
 import java.util.*;
 
 public class Main {
@@ -43,11 +41,11 @@ public class Main {
         OIDPrefixes.clear();
         Yaml yaml = new Yaml();
 
-        InputStream inputStream = Main.class
-                .getClassLoader()
-                .getResourceAsStream("snmp.yaml");
-        Map<String, Object> obj = (Map<String, Object>) yaml.load(inputStream);
-        OIDPrefixes.addAll((List<String>) obj.get("trap-type-oid-prefix"));
+        OIDPrefixes = (ArrayList<String>) ((Map<String, Object>) yaml.load(
+                Main.class.getClassLoader().getResourceAsStream("snmp.yaml")
+        )).get("trap-type-oid-prefix");
+        Collections.sort(OIDPrefixes);
+
     }
 
     /**
@@ -59,12 +57,18 @@ public class Main {
      * @return This method will return true or false when the given OID is filtered.
      */
     public static boolean checkValidOID(String oid) {
-        for (String pref : OIDPrefixes) {
-            if (oid.startsWith(pref) || pref.startsWith(oid)) {
-                return true;
-            }
-        }
-        return false;
+        return Collections.binarySearch(OIDPrefixes, oid, new CustomComp()) >= -1;
     }
 
+    private static class CustomComp implements Comparator<String> {
+
+        @Override
+        public int compare(String o1, String o2) {
+            if (o1.startsWith(o2) || o2.startsWith(o1)) {
+                System.out.println(true);
+                return 0;
+            }
+            return o1.compareTo(o2);
+        }
+    }
 }
